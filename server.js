@@ -15,7 +15,7 @@ db();
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
-app.use('/api/flashcards', flashcardRoutes);
+app.use('/api/flashcard', flashcardRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
