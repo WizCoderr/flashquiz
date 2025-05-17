@@ -1,22 +1,45 @@
 import express from 'express';
-import db from './config/db.js';
+import db from './config/db.js'; 
+import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Load environment variables - this must be at the top
+dotenv.config();
+
+// Initialize Express
 const app = express();
 
-import dotenv from 'dotenv';
-dotenv.config();
-import cors from 'cors';
-
-import flashcardRoutes from './routes/flashcardRoutes.js';
-
+// Middleware
 app.use(cors());
 app.use(express.json());
-const PORT = process.env.PORT || 3000;
-db(); 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-app.use('/api/flashcard', flashcardRoutes);
+app.use(express.urlencoded({ extended: false }));
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Connect to MongoDB with error handling
+db()
+
+// Route imports
+import flashcardRoutes from './routes/flashcardRoutes.js';
+import userRoutes from './routes/user.route.js';
+
+// Routes
+app.use('/api/flashcards', flashcardRoutes);
+app.use('/api/users', userRoutes);
+
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'Server Error',
+    error: process.env.NODE_ENV === 'production' ? {} : err
+  });
 });
+
+// Port configuration
+const PORT = process.env.PORT || 5000;
+
+// Start server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
